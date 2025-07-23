@@ -51,5 +51,14 @@ const startServer = async () => {
   }
 };
 
+// Sinkronisasi model ke database
+db.sequelize.sync({ alter: true }) // atau force: true untuk reset (hapus & buat ulang)
+  .then(() => {
+    console.log('✅ Database synchronized');
+  })
+  .catch((err) => {
+    console.error('❌ Failed to sync database:', err);
+  });
+
 // 8. Jalankan server!
 startServer();
