@@ -11,11 +11,19 @@ const errorHandler = require('./middleware/errorMiddleware');
 
 // 2. Inisialisasi aplikasi Express
 const app = express();
-// PERUBAHAN: Menggunakan process.env.PORT untuk kompatibilitas dengan Render
 const PORT = process.env.PORT || 5000;
 
+// ==========================================================
+// PERBAIKAN CORS DI SINI
+// ==========================================================
+// Izinkan permintaan hanya dari domain frontend Anda
+const corsOptions = {
+  origin: 'https://ibupintar.id',
+  optionsSuccessStatus: 200
+};
+
 // 3. Pasang Middleware tingkat aplikasi
-app.use(cors());
+app.use(cors(corsOptions)); // Gunakan konfigurasi CORS yang spesifik
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -23,8 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', mainRouter);
 
 // 4A. Rute untuk Upload & menjadikan folder statis
-// CATATAN PENTING: Ini tidak akan bekerja dengan baik di Render.
-// Anda harus beralih ke cloud storage seperti Cloudinary untuk produksi.
+// CATATAN: Ini tidak akan bekerja dengan baik di lingkungan produksi seperti Railway/Render
 const uploadRoutes = require('./routes/uploadRoutes');
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
@@ -50,15 +57,6 @@ const startServer = async () => {
     console.error("❌ Gagal menyambungkan atau sinkronisasi database:", error);
   }
 };
-
-// Sinkronisasi model ke database
-db.sequelize.sync({ alter: true }) // atau force: true untuk reset (hapus & buat ulang)
-  .then(() => {
-    console.log('✅ Database synchronized');
-  })
-  .catch((err) => {
-    console.error('❌ Failed to sync database:', err);
-  });
 
 // 8. Jalankan server!
 startServer();
