@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Konfigurasi CORS
 const corsOptions = {
-  origin: 'https://ibupintar.id',
+  origin: ['https://ibupintar.id', 'https://www.ibupintar.id'],
   optionsSuccessStatus: 200
 };
 
