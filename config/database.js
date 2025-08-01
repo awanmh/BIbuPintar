@@ -5,32 +5,30 @@ const { Sequelize } = require('sequelize');
 
 let sequelize;
 
-// Cek apakah aplikasi berjalan di lingkungan produksi (seperti Render)
-// yang menyediakan DATABASE_URL.
+// Cek jika ada DATABASE_URL (untuk platform seperti Render)
 if (process.env.DATABASE_URL) {
-  // Konfigurasi untuk produksi (Render dengan PostgreSQL)
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     protocol: 'postgres',
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false // Wajib ada untuk koneksi ke database Render
+        rejectUnauthorized: false
       }
-    },
-    logging: false // Matikan logging SQL di produksi
+    }
   });
 } else {
-  // Konfigurasi untuk development (lokal dengan MySQL dari .env)
+  // Konfigurasi untuk development lokal dan Railway (yang menggunakan variabel terpisah)
   sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS,
-  {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT || 'mysql' // fallback agar aman
-  }
-);
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASS,
+    {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      dialect: 'mysql'
+    }
+  );
 }
 
 module.exports = sequelize;
