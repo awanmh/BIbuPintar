@@ -13,17 +13,14 @@ const errorHandler = require('./middleware/errorMiddleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ==========================================================
-// PERBAIKAN CORS DI SINI
-// ==========================================================
-// Izinkan permintaan hanya dari domain frontend Anda
+// Konfigurasi CORS
 const corsOptions = {
   origin: 'https://ibupintar.id',
   optionsSuccessStatus: 200
 };
 
 // 3. Pasang Middleware tingkat aplikasi
-app.use(cors(corsOptions)); // Gunakan konfigurasi CORS yang spesifik
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,7 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', mainRouter);
 
 // 4A. Rute untuk Upload & menjadikan folder statis
-// CATATAN: Ini tidak akan bekerja dengan baik di lingkungan produksi seperti Railway/Render
 const uploadRoutes = require('./routes/uploadRoutes');
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
@@ -47,7 +43,8 @@ app.use(errorHandler);
 // 7. Fungsi untuk menjalankan server
 const startServer = async () => {
   try {
-    await db.sequelize.sync();
+    // PERBAIKAN: Gunakan { alter: true } untuk sinkronisasi yang lebih aman
+    await db.sequelize.sync({ alter: true });
     console.log("✅ Database berhasil tersinkronisasi.");
 
     app.listen(PORT, () => {
