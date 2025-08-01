@@ -13,14 +13,25 @@ const errorHandler = require('./middleware/errorMiddleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Konfigurasi CORS
+// ==========================================================
+// KONFIGURASI CORS FINAL
+// ==========================================================
+const allowedOrigins = ['https://ibupintar.id', 'https://www.ibupintar.id'];
+
 const corsOptions = {
-  origin: ['https://ibupintar.id', 'https://www.ibupintar.id'],
+  origin: function (origin, callback) {
+    // Izinkan jika origin ada di dalam daftar, atau jika tidak ada origin (seperti dari Postman)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   optionsSuccessStatus: 200
 };
 
 // 3. Pasang Middleware tingkat aplikasi
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Gunakan konfigurasi CORS yang baru
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,7 +54,6 @@ app.use(errorHandler);
 // 7. Fungsi untuk menjalankan server
 const startServer = async () => {
   try {
-    // PERBAIKAN: Gunakan { alter: true } untuk sinkronisasi yang lebih aman
     await db.sequelize.sync({ alter: true });
     console.log("✅ Database berhasil tersinkronisasi.");
 
