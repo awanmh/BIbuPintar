@@ -5,63 +5,62 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const db = require('./models'); // Sequelize models
-const mainRouter = require('./routes'); // Main API routes
+const db = require('./models');
+const mainRouter = require('./routes');
 const errorHandler = require('./middleware/errorMiddleware');
 
 // 2. Inisialisasi aplikasi Express
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 3. Konfigurasi CORS agar hanya domain tertentu yang diizinkan
+// Konfigurasi CORS
 const allowedOrigins = ['https://ibupintar.id', 'https://www.ibupintar.id'];
-
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('CORS policy: Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
   optionsSuccessStatus: 200
 };
 
-// 4. Middleware global
-app.use(cors(corsOptions)); // CORS
-app.use(express.json()); // Body parser JSON
-app.use(express.urlencoded({ extended: true })); // URL-encoded parser
+// 3. Pasang Middleware tingkat aplikasi
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 5. Routing API utama
+// 4. Pasang Rute Utama
 app.use('/api', mainRouter);
 
-// 6. Rute upload & folder statis untuk file yang diunggah
+// 4A. Rute untuk Upload & menjadikan folder statis
 const uploadRoutes = require('./routes/uploadRoutes');
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
-// 7. Rute dasar tes koneksi
+// 5. Rute dasar untuk mengecek apakah server berjalan
 app.get('/', (req, res) => {
   res.send('🎉 Selamat Datang di API Website Ibu Hamil! Server berjalan dengan baik.');
 });
 
-// 8. Error handling global
+// 6. Pasang Error Handling Middleware
 app.use(errorHandler);
 
-// 9. Jalankan server & sinkronisasi database
+// 7. Fungsi untuk menjalankan server
 const startServer = async () => {
   try {
-    await db.sequelize.sync({ alter: true }); // Bisa diubah ke { force: true } hanya untuk development
-    console.log('✅ Database berhasil tersinkronisasi.');
+    // PERBAIKAN FINAL: Gunakan { force: true } untuk satu kali reset
+    await db.sequelize.sync({ force: true });
+    console.log("✅ Database berhasil di-reset dan disinkronisasi.");
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server berjalan di port ${PORT}`);
+      console.log(`🚀 Server berjalan dengan gagah di port: ${PORT}`);
     });
   } catch (error) {
-    console.error('❌ Gagal memulai server atau koneksi database:', error);
+    console.error("❌ Gagal menyambungkan atau sinkronisasi database:", error);
   }
 };
 
-// 10. Eksekusi
+// 8. Jalankan server!
 startServer();
