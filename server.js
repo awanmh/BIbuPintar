@@ -13,14 +13,11 @@ const errorHandler = require('./middleware/errorMiddleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ==========================================================
-// PENYEMPURNAAN KONFIGURASI CORS
-// ==========================================================
+// Konfigurasi CORS
 const allowedOrigins = ['https://ibupintar.id', 'https://www.ibupintar.id'];
-
 const corsOptions = {
-  origin: allowedOrigins, // Langsung gunakan array untuk kejelasan
-  credentials: true, // Izinkan pengiriman kredensial seperti token
+  origin: allowedOrigins,
+  credentials: true,
   optionsSuccessStatus: 200
 };
 
@@ -28,6 +25,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ==========================================================
+// MIDDLEWARE DEBUGGING - LOG SEMUA REQUEST YANG MASUK
+// ==========================================================
+app.use((req, res, next) => {
+  console.log(`[REQUEST LOG] Method: ${req.method}, Path: ${req.originalUrl}`);
+  next();
+});
+// ==========================================================
 
 // 4. Pasang Rute Utama
 app.use('/api', mainRouter);
@@ -48,9 +54,6 @@ app.use(errorHandler);
 // 7. Fungsi untuk menjalankan server
 const startServer = async () => {
   try {
-    // ==========================================================
-    // PENTING: Kembalikan ke { alter: true } untuk keamanan data
-    // ==========================================================
     await db.sequelize.sync({ alter: true });
     console.log("✅ Database berhasil tersinkronisasi.");
 
