@@ -26,29 +26,43 @@ exports.getTreatmentById = async (req, res) => {
 };
 
 // ==========================================================
-// PERBAIKAN DI FUNGSI INI
+// FUNGSI BARU DITAMBAHKAN DI SINI
 // ==========================================================
+// Ambil hanya treatment tipe 'single'
+exports.getSingleTreatments = async (req, res) => {
+  try {
+    const singles = await Treatment.findAll({ where: { type: 'single' } });
+    res.json(singles);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch single treatments.' });
+  }
+};
+
+// Ambil hanya treatment tipe 'package'
+exports.getPackageTreatments = async (req, res) => {
+  try {
+    const packages = await Treatment.findAll({ where: { type: 'package' } });
+    res.json(packages);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch package treatments.' });
+  }
+};
+// ==========================================================
+
+// Buat treatment baru
 exports.createTreatment = async (req, res) => {
   try {
-    // Dapatkan path gambar jika ada file yang diunggah
     const imageUrl = req.file ? `/uploads/treatments/${req.file.filename}` : null;
-
-    // Buat treatment baru. Slug akan dibuat otomatis oleh model.
     const newTreatment = await Treatment.create({
       ...req.body,
       imageUrl,
     });
-
     res.status(201).json(newTreatment);
   } catch (error) {
-    console.error('Error creating treatment:', error); // Log error untuk debugging
-    
-    // Kirim pesan error yang lebih spesifik jika ada duplikat
+    console.error('Error creating treatment:', error);
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({ message: 'Treatment dengan nama ini sudah ada.' });
     }
-    
-    // Kirim pesan error umum
     res.status(500).json({ message: 'Terjadi kesalahan pada server saat membuat treatment.' });
   }
 };
@@ -62,8 +76,6 @@ exports.updateTreatment = async (req, res) => {
     if (req.file) {
       req.body.imageUrl = `/uploads/treatments/${req.file.filename}`;
     }
-
-    // Slug akan di-update otomatis oleh hook di model jika nama berubah
     await treatment.update(req.body);
     res.json(treatment);
   } catch (error) {
@@ -84,7 +96,7 @@ exports.deleteTreatment = async (req, res) => {
   }
 };
 
-// ... sisa fungsi lainnya (getTreatmentBySlug, dll.) tetap sama ...
+// Ambil treatment by slug
 exports.getTreatmentBySlug = async (req, res) => {
   try {
     const treatment = await Treatment.findOne({ where: { slug: req.params.slug } });
@@ -97,6 +109,7 @@ exports.getTreatmentBySlug = async (req, res) => {
   }
 };
 
+// Tambahkan treatment ke package
 exports.addToPackage = async (req, res) => {
   try {
     const { packageId, treatmentId } = req.body;

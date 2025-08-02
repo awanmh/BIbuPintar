@@ -3,8 +3,6 @@ const router = express.Router();
 const articleController = require('../controllers/articleController');
 const { protect, isAdmin } = require('../middleware/authMiddleware');
 
-console.log('✅ File articleRoutes.js BERHASIL dimuat!');
-
 // Route publik
 router.get('/', articleController.getAllArticles);
 router.get('/:id', articleController.getArticleById);
