@@ -1,33 +1,26 @@
 // middleware/upload.js
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
+// Konfigurasi Cloudinary dengan environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Konfigurasi storage engine untuk Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ibu_pintar/treatments', // Nama folder di Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png'], // Format file yang diizinkan
+    transformation: [{ width: 500, height: 500, crop: 'limit' }] // Contoh transformasi gambar
   },
-  filename(req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-  }
 });
 
-function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Hanya file gambar (jpg, jpeg, png) yang diizinkan!'));
-  }
-}
-
-const upload = multer({
-  storage,
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  }
-});
+// Inisialisasi multer dengan storage Cloudinary
+const upload = multer({ storage: storage });
 
 module.exports = upload;

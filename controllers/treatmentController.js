@@ -1,62 +1,17 @@
 // controllers/treatmentController.js
 const { Treatment, PackageItem } = require('../models');
-const slugify = require('../utils/slugify');
-
-// Ambil semua treatment
-exports.getAllTreatments = async (req, res) => {
-  try {
-    const treatments = await Treatment.findAll();
-    res.json(treatments);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch treatments.' });
-  }
-};
-
-// Ambil treatment by ID
-exports.getTreatmentById = async (req, res) => {
-  try {
-    const treatment = await Treatment.findByPk(req.params.id);
-    if (!treatment) {
-      return res.status(404).json({ message: 'Treatment not found.' });
-    }
-    res.json(treatment);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch treatment.' });
-  }
-};
-
-// ==========================================================
-// FUNGSI BARU DITAMBAHKAN DI SINI
-// ==========================================================
-// Ambil hanya treatment tipe 'single'
-exports.getSingleTreatments = async (req, res) => {
-  try {
-    const singles = await Treatment.findAll({ where: { type: 'single' } });
-    res.json(singles);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch single treatments.' });
-  }
-};
-
-// Ambil hanya treatment tipe 'package'
-exports.getPackageTreatments = async (req, res) => {
-  try {
-    const packages = await Treatment.findAll({ where: { type: 'package' } });
-    res.json(packages);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch package treatments.' });
-  }
-};
-// ==========================================================
 
 // Buat treatment baru
 exports.createTreatment = async (req, res) => {
   try {
-    const imageUrl = req.file ? `/uploads/treatments/${req.file.filename}` : null;
+    // URL gambar sekarang didapat dari req.file.path yang diberikan oleh Cloudinary
+    const imageUrl = req.file ? req.file.path : null;
+
     const newTreatment = await Treatment.create({
       ...req.body,
-      imageUrl,
+      imageUrl, // Simpan URL dari Cloudinary
     });
+
     res.status(201).json(newTreatment);
   } catch (error) {
     console.error('Error creating treatment:', error);
@@ -73,9 +28,11 @@ exports.updateTreatment = async (req, res) => {
     const treatment = await Treatment.findByPk(req.params.id);
     if (!treatment) return res.status(404).json({ error: 'Treatment not found' });
 
+    // Jika ada file baru yang diunggah, perbarui imageUrl
     if (req.file) {
-      req.body.imageUrl = `/uploads/treatments/${req.file.filename}`;
+      req.body.imageUrl = req.file.path;
     }
+
     await treatment.update(req.body);
     res.json(treatment);
   } catch (error) {
@@ -83,7 +40,47 @@ exports.updateTreatment = async (req, res) => {
   }
 };
 
-// Hapus treatment
+// --- Fungsi lainnya ---
+
+exports.getAllTreatments = async (req, res) => {
+  try {
+    const treatments = await Treatment.findAll();
+    res.json(treatments);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch treatments.' });
+  }
+};
+
+exports.getTreatmentById = async (req, res) => {
+  try {
+    const treatment = await Treatment.findByPk(req.params.id);
+    if (!treatment) {
+      return res.status(404).json({ message: 'Treatment not found.' });
+    }
+    res.json(treatment);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch treatment.' });
+  }
+};
+
+exports.getSingleTreatments = async (req, res) => {
+  try {
+    const singles = await Treatment.findAll({ where: { type: 'single' } });
+    res.json(singles);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch single treatments.' });
+  }
+};
+
+exports.getPackageTreatments = async (req, res) => {
+  try {
+    const packages = await Treatment.findAll({ where: { type: 'package' } });
+    res.json(packages);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch package treatments.' });
+  }
+};
+
 exports.deleteTreatment = async (req, res) => {
   try {
     const treatment = await Treatment.findByPk(req.params.id);
@@ -96,7 +93,6 @@ exports.deleteTreatment = async (req, res) => {
   }
 };
 
-// Ambil treatment by slug
 exports.getTreatmentBySlug = async (req, res) => {
   try {
     const treatment = await Treatment.findOne({ where: { slug: req.params.slug } });
@@ -109,7 +105,6 @@ exports.getTreatmentBySlug = async (req, res) => {
   }
 };
 
-// Tambahkan treatment ke package
 exports.addToPackage = async (req, res) => {
   try {
     const { packageId, treatmentId } = req.body;
