@@ -5,6 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const fs = require('fs'); // <-- 1. Impor modul File System
 const db = require('./models');
 const mainRouter = require('./routes');
 const errorHandler = require('./middleware/errorMiddleware');
@@ -12,6 +13,21 @@ const errorHandler = require('./middleware/errorMiddleware');
 // 2. Inisialisasi aplikasi Express
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ==========================================================
+// 2A. BUAT FOLDER UPLOADS JIKA BELUM ADA
+// ==========================================================
+const uploadsDir = path.join(__dirname, 'uploads');
+const treatmentsUploadsDir = path.join(uploadsDir, 'treatments'); // Sub-folder untuk treatments
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+if (!fs.existsSync(treatmentsUploadsDir)) {
+  fs.mkdirSync(treatmentsUploadsDir);
+}
+// ==========================================================
+
 
 // Konfigurasi CORS
 const allowedOrigins = ['https://ibupintar.id', 'https://www.ibupintar.id'];
@@ -25,15 +41,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// ==========================================================
-// MIDDLEWARE DEBUGGING - LOG SEMUA REQUEST YANG MASUK
-// ==========================================================
-app.use((req, res, next) => {
-  console.log(`[REQUEST LOG] Method: ${req.method}, Path: ${req.originalUrl}`);
-  next();
-});
-// ==========================================================
 
 // 4. Pasang Rute Utama
 app.use('/api', mainRouter);
