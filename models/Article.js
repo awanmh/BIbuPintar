@@ -1,15 +1,12 @@
-// models/Article.js
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+// backend/models/Article.js
+const { DataTypes } = require('sequelize');
 
-class Article extends Model {}
-
-Article.init({
-  title: { type: DataTypes.STRING, allowNull: false },
-  content: { type: DataTypes.TEXT, allowNull: false },
-  imageUrl: { type: DataTypes.STRING, allowNull: true },
-  date_posted: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
-}, { sequelize, modelName: 'Article' });
-
-module.exports = Article;
-
+module.exports = (sequelize) => {
+  const Article = sequelize.define('Article', {
+    title: { type: DataTypes.STRING, allowNull: false },
+    content: { type: DataTypes.TEXT, allowNull: false },
+    imageUrl: { type: DataTypes.STRING, allowNull: true },
+    date_posted: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  });
+  return Article;
+};

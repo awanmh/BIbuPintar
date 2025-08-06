@@ -1,40 +1,14 @@
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+// backend/models/User.js
+const { DataTypes } = require('sequelize');
 
-class User extends Model {}
-
-User.init({
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: { isEmail: true }
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: true // dibuat nullable agar login Google bisa tanpa password
-  },
-  googleId: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    unique: true
-  },
-  provider: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    defaultValue: 'local' // atau 'google'
-  },
-  role: {
-    type: DataTypes.ENUM('visitor', 'admin'),
-    defaultValue: 'visitor'
-  }
-}, {
-  sequelize,
-  modelName: 'User'
-});
-
-module.exports = User;
+module.exports = (sequelize) => {
+  const User = sequelize.define('User', {
+    name: { type: DataTypes.STRING, allowNull: false },
+    email: { type: DataTypes.STRING, allowNull: false, unique: true, validate: { isEmail: true } },
+    password: { type: DataTypes.STRING, allowNull: true },
+    googleId: { type: DataTypes.STRING, allowNull: true, unique: true },
+    provider: { type: DataTypes.STRING, allowNull: true, defaultValue: 'local' },
+    role: { type: DataTypes.ENUM('visitor', 'admin'), defaultValue: 'visitor' }
+  });
+  return User;
+};
