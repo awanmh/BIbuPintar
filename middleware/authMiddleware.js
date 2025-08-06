@@ -38,6 +38,20 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+// ==========================================================
+// FUNGSI YANG HILANG DITAMBAHKAN KEMBALI DI SINI
+// ==========================================================
+// Middleware untuk membatasi role tertentu
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Akses ditolak, role tidak sesuai.' });
+    }
+    next();
+  };
+};
+// ==========================================================
+
 // Middleware khusus hanya untuk admin
 exports.isAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
