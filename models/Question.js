@@ -1,19 +1,16 @@
-//Question
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+// ============== file: backend/models/Question.js ==============
+const { DataTypes } = require('sequelize');
 
-class Question extends Model {}
-
-Question.init({
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  }
-}, { sequelize, modelName: 'Question' });
-
-module.exports = Question;
-
+module.exports = (sequelize) => {
+  const Question = sequelize.define('Question', {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    }
+  });
+  return Question;
+};

@@ -1,16 +1,12 @@
-// models/Category.js
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+// ============== file: backend/models/Category.js ==============
+const { DataTypes } = require('sequelize');
 
-class Category extends Model {}
-
-Category.init({
-  name: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING }
-}, {
-  sequelize,
-  modelName: 'Category',
-  timestamps: false
-});
-
-module.exports = Category;
+module.exports = (sequelize) => {
+  const Category = sequelize.define('Category', {
+    name: { type: DataTypes.STRING, allowNull: false },
+    description: { type: DataTypes.STRING }
+  }, {
+    timestamps: false // Tidak ada kolom createdAt dan updatedAt
+  });
+  return Category;
+};

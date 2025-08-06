@@ -1,25 +1,13 @@
-//Answer.js
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+// ============== file: backend/models/Answer.js ==============
+const { DataTypes } = require('sequelize');
 
-class Answer extends Model {}
-
-Answer.init({
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  question_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  }
-}, {
-  sequelize,
-  modelName: 'Answer'
-});
-
-module.exports = Answer;
+module.exports = (sequelize) => {
+  const Answer = sequelize.define('Answer', {
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    }
+    // Foreign keys (user_id, question_id) akan ditambahkan oleh relasi di index.js
+  });
+  return Answer;
+};
