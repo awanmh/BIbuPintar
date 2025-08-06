@@ -14,17 +14,17 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     let folder = 'ibu_pintar/misc'; // default folder
 
-    // Tentukan folder berdasarkan path endpoint
-    if (req.baseUrl.includes('articles')) {
+    // PERBAIKAN: Gunakan req.originalUrl yang lebih andal
+    if (req.originalUrl.includes('/api/articles')) {
       folder = 'ibu_pintar/articles';
-    } else if (req.baseUrl.includes('treatments')) {
+    } else if (req.originalUrl.includes('/api/treatments')) {
       folder = 'ibu_pintar/treatments';
     }
 
     return {
       folder: folder,
       allowed_formats: ['jpg', 'jpeg', 'png'],
-      transformation: [{ width: 500, height: 500, crop: 'limit' }]
+      transformation: [{ width: 800, height: 600, crop: 'limit' }] // Ukuran disesuaikan untuk artikel
     };
   },
 });
