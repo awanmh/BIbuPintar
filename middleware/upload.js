@@ -3,24 +3,32 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 
-// Konfigurasi Cloudinary dengan environment variables
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Konfigurasi storage engine untuk Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'ibu_pintar/treatments', // Nama folder di Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png'], // Format file yang diizinkan
-    transformation: [{ width: 500, height: 500, crop: 'limit' }] // Contoh transformasi gambar
+  params: async (req, file) => {
+    let folder = 'ibu_pintar/misc'; // default folder
+
+    // Tentukan folder berdasarkan path endpoint
+    if (req.baseUrl.includes('articles')) {
+      folder = 'ibu_pintar/articles';
+    } else if (req.baseUrl.includes('treatments')) {
+      folder = 'ibu_pintar/treatments';
+    }
+
+    return {
+      folder: folder,
+      allowed_formats: ['jpg', 'jpeg', 'png'],
+      transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    };
   },
 });
 
-// Inisialisasi multer dengan storage Cloudinary
 const upload = multer({ storage: storage });
 
 module.exports = upload;
