@@ -61,7 +61,7 @@ app.use(errorHandler);
 // 7. Fungsi untuk menjalankan server
 const startServer = async () => {
   try {
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync({ force: true });
     console.log("✅ Database berhasil tersinkronisasi.");
 
     app.listen(PORT, () => {
